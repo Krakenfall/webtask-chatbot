@@ -77,6 +77,7 @@ server.post('/', (req, res, next) => {
       switch(parts[1]) {
         case 'add':
         case 'new':
+        case 'insert':
           insertTerm(parts[2], parts.splice(0, 3), db, (err, result) => {
             res.status(200).send(result);
           });
