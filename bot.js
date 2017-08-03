@@ -57,9 +57,6 @@ var deleteTerm = function(term, db, cb) {
   });
 };
 
-
-
-
 server.use(bodyParser.json());
 server.get('/', (req, res, next) => {
     res.status(200).send('Hello there!');
@@ -71,7 +68,7 @@ server.post('/', (req, res, next) => {
   MongoClient.connect(MONGO_URL, (err, db) => {
     if (err) return next(err);
     // Expects GroupMe payload
-    var message = req.body.text
+    var message = req.body.text;
     var parts = message.split(' ');
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
@@ -89,7 +86,17 @@ server.post('/', (req, res, next) => {
           res.status(200).send('Command not found');
       }
     } else {
-      res.status(200).send('Well dandy');
+      readTerms(db, (err, terms) => {
+        if (err) res.status(500).send(err);
+        else {
+          var matches = [];
+          for(var i = 0; i < terms.length; i++) {
+            if (message.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
+          }
+          if (matches.length > 0) res.status(200).send(`Matches: ${matches.join(", ")}`);
+          else res.status(200).send('');
+        }
+      });
     }
   });  
 
