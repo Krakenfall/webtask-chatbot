@@ -81,6 +81,9 @@ server.post('/', (req, res, next) => {
           break;
         case 'update':
         case 'change':
+          updateTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
+            res.status(200).send(result);
+          });
           break;
         default:
           res.status(200).send('Command not found');
