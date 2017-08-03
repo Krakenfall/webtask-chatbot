@@ -15,6 +15,6 @@ server.get('/', (req, res, next) => {
 });
 
 server.post('/', (req, res, next) => {
-  return next('Err: Not Ready');
+  res.status(200).send(req);
 });
 module.exports = Webtask.fromExpress(server);
