@@ -16,7 +16,7 @@ function Term(key, value) {
 var insertTerm = function(key, value, db, cb) {
     db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
       if (err) cb(err);
-      cb(null, `Added ${key} with response \'${value}\'`);
+      cb(null, `Added \'${key}\' with response \'${value}\'`);
     });
 };
 
