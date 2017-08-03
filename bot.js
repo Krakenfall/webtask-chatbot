@@ -79,7 +79,7 @@ server.post('/', (req, res, next) => {
         case 'add':
         case 'new':
         case 'insert':
-          insertTerm(parts[2], parts.slice(0, 3).join(' '), db, (err, result) => {
+          insertTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
             res.status(200).send(result);
           });
           break;
