@@ -69,7 +69,7 @@ server.get('/', (req, res, next) => {
 server.post('/', (req, res, next) => {
   const { MONGO_URL } = req.webtaskContext.data;
   MongoClient.connect(MONGO_URL, (err, db) => {
-    if (err) cb(err);
+    if (err) return next(err);
     // Expects GroupMe payload
     var message = req.body.text
     var parts = message.split(' ');
