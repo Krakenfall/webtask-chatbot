@@ -21,14 +21,14 @@ var insertTerm = function(key, value, db, cb) {
 };
 
 var readTerms = function(db, cb) {
-    db.get().collection(collection).find().toArray((err, terms) =>  {
+    db.collection(collection).find().toArray((err, terms) =>  {
       if (err) cb(err);
       else cb(null, terms);
     });
 };
 
 var updateTerm = function(term, value, db, cb) {
-  db.get().collection(collection).find().toArray((err, terms) =>  {
+  db.collection(collection).find().toArray((err, terms) =>  {
     if (err) cb(err);
     else {
       var newVal = terms.find(o => o.key === term.toLowerCase());
@@ -43,7 +43,7 @@ var updateTerm = function(term, value, db, cb) {
 };
 
 var deleteTerm = function(term, db, cb) {
-  db.get().collection(collection).find().toArray((err, terms) =>  {
+  db.collection(collection).find().toArray((err, terms) =>  {
       if (err) cb(err);
       else {
         var doomed = terms.find(o => o.key === term.toLowerCase());
