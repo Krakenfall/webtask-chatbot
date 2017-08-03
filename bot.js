@@ -33,7 +33,7 @@ var updateTerm = function(term, value, db, cb) {
     else {
       var newVal = terms.find(o => o.key === term.toLowerCase());
         if (newVal) {
-        db.get().collection(collection).update({_id: newVal._id}, {$set: {value: newVal.value}}, (err, result) => {
+        db.collection(collection).update({_id: newVal._id}, {$set: {value: newVal.value}}, (err, result) => {
           if (err) cb(err);
           else { cb(null, 'Term successfully updated'); }
         });	
@@ -48,7 +48,7 @@ var deleteTerm = function(term, db, cb) {
       else {
         var doomed = terms.find(o => o.key === term.toLowerCase());
         if (doomed) {
-          db.get().collection(collection).remove({_id : doomed._id}, (err, result) => {
+          db.collection(collection).remove({_id : doomed._id}, (err, result) => {
             if (err) cb(err);
             else { cb(null, 'Term successfully deleted'); }
           });
