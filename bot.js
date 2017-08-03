@@ -66,7 +66,7 @@ server.get('/', (req, res, next) => {
 });
 
 // Receives callback POSTS from GroupMe service
-server.put('/', (req, res, next) => {
+server.post('/', (req, res, next) => {
   const { MONGO_URL } = req.webtaskContext.data;
   MongoClient.connect(MONGO_URL, (err, db) => {
     // Expects GroupMe payload
