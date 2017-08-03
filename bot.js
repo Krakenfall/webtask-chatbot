@@ -15,6 +15,6 @@ server.get('/', (req, res, next) => {
 });
 
 server.post('/', (req, res, next) => {
-  res.status(200).send(JSON.stringify(req));
+  res.status(200).send(JSON.stringify(req.body));
 });
 module.exports = Webtask.fromExpress(server);
