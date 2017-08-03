@@ -87,6 +87,8 @@ server.post('/', (req, res, next) => {
         default:
           res.status(200).send('Command not found');
       }
+    } else {
+      res.status(200).send('Well dandy');
     }
   });  
 
