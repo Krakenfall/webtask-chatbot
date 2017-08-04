@@ -1,6 +1,7 @@
 'use latest';
 import bodyParser from 'body-parser';
 import express from 'express';
+import request from 'request';
 import Webtask from 'webtask-tools';
 import { MongoClient } from 'mongodb';
 import { ObjectID } from 'mongodb';
