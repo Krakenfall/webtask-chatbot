@@ -61,6 +61,18 @@ var deleteTerm = function(term, db, cb) {
   });
 };
 
+var sendToGroupMe = function(text, groupId, botId, cb) {
+  request.post("https://api.groupme.com/v3/bots/post", 
+    {json: {"bot_id": botId, "text": text}},
+    (err, res, body) => {
+    if (!err && res.statusCode >= 200 && res.statusCode < 300) {
+      cb(null, `Successfully posted message \'${text}\'`)
+    }
+    else cb(err);
+  }
+  );
+};
+
 server.use(bodyParser.json());
 server.get('/', (req, res, next) => {
     res.status(200).send('Hello there!');
@@ -68,7 +80,7 @@ server.get('/', (req, res, next) => {
 
 // Receives callback POSTS from GroupMe service
 server.post('/', (req, res, next) => {
-  const { MONGO_URL } = req.webtaskContext.data;
+  const { MONGO_URL,GROUPME_GROUP_ID,GROUPME_BOT_ID } = req.webtaskContext.data;
   MongoClient.connect(MONGO_URL, (err, db) => {
     if (err) return next(err);
     // Expects GroupMe payload
@@ -80,24 +92,32 @@ server.post('/', (req, res, next) => {
         case 'new':
         case 'insert':
           insertTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
-            res.status(200).send(result);
+            sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
+              res.status(200).send(message);
+            });
           });
           break;
         case 'update':
         case 'change':
           updateTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
-            res.status(200).send(result);
+            sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
+              res.status(200).send(message);
+            });
           });
           break;
         case 'delete':
         case 'remove':
         case 'rm':
           deleteTerm(parts[2], db, (err, result) => {
-            res.status(200).send(result);
+            sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
+              res.status(200).send(message);
+            });
           });
           break;
         default:
-          res.status(200).send('Command not found');
+          sendToGroupMe('Command not found', GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
+            res.status(200).send(message);
+          });
       }
     } else {
       readTerms(db, (err, terms) => {
@@ -105,9 +125,15 @@ server.post('/', (req, res, next) => {
         else {
           var matches = [];
           for(var i = 0; i < terms.length; i++) {
-            if (message.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
+            if (message.indexOf(terms[i].key) > -1) { 
+              matches.push(terms[i].value);
+            }
           }
-          if (matches.length > 0) res.status(200).send(`Matches: ${matches.join(", ")}`);
+          if (matches.length > 0) {
+            sendToGroupMe(`${matches.join(", ")}`, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
+              res.status(200).send(message);
+            });
+          }
           else res.status(200).send('');
         }
       });
