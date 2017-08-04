@@ -35,7 +35,7 @@ var updateTerm = function(term, value, db, cb) {
         if (newVal) {
         db.collection(collection).update({_id: newVal._id}, {$set: {value: newVal.value}}, (err, result) => {
           if (err) cb(err);
-          else { cb(null, 'Term successfully updated'); }
+          else { cb(null, result); }
         });	
         } else { cb(null, `${term} not found`); }
     }
