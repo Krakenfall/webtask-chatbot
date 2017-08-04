@@ -97,7 +97,7 @@ server.post('/', (req, res, next) => {
     const comment = req.body.text;
     const parts = comment.split(' ');
     console.log(JSON.stringify(req.body));
-    if (req.body.sender_id === 'GROUPME_BOT_ID') res.status(200).send('');
+    if (req.body.sender_id === '518316') res.status(200).send('');
     else {
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
