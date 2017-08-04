@@ -95,10 +95,9 @@ server.post('/', (req, res, next) => {
     if (err) return next(err);
     // Expects GroupMe payload
     const comment = req.body.text;
-    const sender = req.body.sender_id;
     const parts = comment.split(' ');
-    
-    if (sender === GROUPME_BOT_ID) res.status(200).send('');
+    console.log(req.body.sender_id);
+    if (req.body.sender_id === GROUPME_BOT_ID) res.status(200).send('');
     else {
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
@@ -140,8 +139,10 @@ server.post('/', (req, res, next) => {
             if (comment.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
           }
           if (matches.length > 0) {
-            sendToGroupMe(`Matches: ${matches.join(", ")}`, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
-              res.status(200).send(message);
+            matches.forEach(function(match){
+              sendToGroupMe(match, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
+                res.status(200).send(message);
+              });
             });
           } else {res.status(200).send('');}
         }
