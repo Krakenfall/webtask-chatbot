@@ -91,6 +91,7 @@ server.post('/', (req, res, next) => {
           deleteTerm(parts[2], db, (err, result) => {
             res.status(200).send(result);
           });
+          break;
         default:
           res.status(200).send('Command not found');
       }
