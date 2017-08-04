@@ -21,6 +21,7 @@ var insertTerm = function(key, value, db, cb) {
       if (existing && existing._id !== null) cb(null, `Term \'${term}\' already exists`); 
       else {
         db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
+          db.close();
           if (err) cb(err);
           else cb(null, `Added \'${key}\' with response \'${value}\'`);
         });
@@ -29,6 +30,7 @@ var insertTerm = function(key, value, db, cb) {
 
 var readTerms = function(db, cb) {
     db.collection(collection).find().toArray((err, terms) =>  {
+      db.close();
       if (err) cb(err);
       else cb(null, terms);
     });
@@ -41,6 +43,7 @@ var updateTerm = function(term, value, db, cb) {
       var existing = terms.find(o => o.key === term.toLowerCase());
       if (existing && existing._id !== null) {
         db.collection(collection).updateOne({_id: existing._id}, {key: term.toLowerCase(), value: value}, (err, result) => {
+          db.close();
           if (err) cb(err);
           else { cb(null, `Updated \'${term}\' with value \'${value}\'`); }
         });	
@@ -56,6 +59,7 @@ var deleteTerm = function(term, db, cb) {
         var doomed = terms.find(o => o.key === term.toLowerCase());
         if (doomed) {
           db.collection(collection).remove({_id : doomed._id}, (err, result) => {
+            db.close();
             if (err) cb(err);
             else { cb(null, `Term \'${term}\' successfully deleted`); }
           });
