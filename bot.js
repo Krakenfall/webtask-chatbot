@@ -31,9 +31,9 @@ var updateTerm = function(term, value, db, cb) {
   db.collection(collection).find().toArray((err, terms) =>  {
     if (err) cb(err);
     else {
-      var newVal = terms.find(o => o.key === term.toLowerCase());
-        if (newVal && newVal._id !== null) {
-        db.collection(collection).updateOne({_id: newVal._id}, {key: term.toLowerCase(), value: value}, (err, result) => {
+      var existing = terms.find(o => o.key === term.toLowerCase());
+        if (existing && existing._id !== null) {
+        db.collection(collection).updateOne({_id: existing._id}, {key: term.toLowerCase(), value: value}, (err, result) => {
           if (err) cb(err);
           else { cb(null, `Updated \'${term}\' with value \'${value}\'`); }
         });	
