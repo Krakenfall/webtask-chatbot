@@ -32,7 +32,7 @@ var updateTerm = function(term, value, db, cb) {
     if (err) cb(err);
     else {
       var newVal = terms.find(o => o.key === term.toLowerCase());
-        if (newVal) {
+        if (newVal && newVal._id !== null) {
         db.collection(collection).update({_id: newVal._id}, {$set: {value: newVal.value}}, (err, result) => {
           if (err) cb(err);
           else { cb(null, result); }
