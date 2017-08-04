@@ -136,7 +136,7 @@ server.post('/', (req, res, next) => {
         else {
           let matches = [];
           for(var i = 0; i < terms.length; i++) {
-            if (comment.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
+            if (comment.toLowerCase().indexOf(terms[i].key) > -1) matches.push(terms[i].value);
           }
           if (matches.length > 0) {
             matches.forEach(function(match){
