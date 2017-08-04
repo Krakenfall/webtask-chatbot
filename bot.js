@@ -15,7 +15,6 @@ function Term(key, value) {
 
 var insertTerm = function(key, value, db, cb) {
     db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
-      db.close();
       if (err) cb(err);
       cb(null, `Added \'${key}\' with response \'${value}\'`);
     });
@@ -23,7 +22,6 @@ var insertTerm = function(key, value, db, cb) {
 
 var readTerms = function(db, cb) {
     db.collection(collection).find().toArray((err, terms) =>  {
-      db.close();
       if (err) cb(err);
       else cb(null, terms);
     });
@@ -36,7 +34,6 @@ var updateTerm = function(term, value, db, cb) {
       var existing = terms.find(o => o.key === term.toLowerCase());
         if (existing && existing._id !== null) {
         db.collection(collection).updateOne({_id: existing._id}, {key: term.toLowerCase(), value: value}, (err, result) => {
-          db.close();
           if (err) cb(err);
           else { cb(null, `Updated \'${term}\' with value \'${value}\'`); }
         });	
@@ -52,25 +49,12 @@ var deleteTerm = function(term, db, cb) {
         var doomed = terms.find(o => o.key === term.toLowerCase());
         if (doomed) {
           db.collection(collection).remove({_id : doomed._id}, (err, result) => {
-            db.close();
             if (err) cb(err);
             else { cb(null, `Term \'${term}\' successfully deleted`); }
           });
         } else { cb(null, `${term} not found`); }
       }
   });
-};
-
-var sendToGroupMe = function(text, groupId, botId, cb) {
-  request.post("https://api.groupme.com/v3/bots/post", 
-    {json: {"bot_id": botId, "text": text}},
-    (err, res, body) => {
-    if (!err && res.statusCode >= 200 && res.statusCode < 300) {
-      cb(null, `Successfully posted message \'${text}\'`)
-    }
-    else cb(err);
-  }
-  );
 };
 
 server.use(bodyParser.json());
@@ -80,7 +64,7 @@ server.get('/', (req, res, next) => {
 
 // Receives callback POSTS from GroupMe service
 server.post('/', (req, res, next) => {
-  const { MONGO_URL,GROUPME_GROUP_ID,GROUPME_BOT_ID } = req.webtaskContext.data;
+  const { MONGO_URL } = req.webtaskContext.data;
   MongoClient.connect(MONGO_URL, (err, db) => {
     if (err) return next(err);
     // Expects GroupMe payload
@@ -92,32 +76,24 @@ server.post('/', (req, res, next) => {
         case 'new':
         case 'insert':
           insertTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
-            sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
-              res.status(200).send(message);
-            });
+            res.status(200).send(result);
           });
           break;
         case 'update':
         case 'change':
           updateTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
-            sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
-              res.status(200).send(message);
-            });
+            res.status(200).send(result);
           });
           break;
         case 'delete':
         case 'remove':
         case 'rm':
           deleteTerm(parts[2], db, (err, result) => {
-            sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
-              res.status(200).send(message);
-            });
+            res.status(200).send(result);
           });
           break;
         default:
-          sendToGroupMe('Command not found', GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
-            res.status(200).send(message);
-          });
+          res.status(200).send('Command not found');
       }
     } else {
       readTerms(db, (err, terms) => {
@@ -125,15 +101,9 @@ server.post('/', (req, res, next) => {
         else {
           var matches = [];
           for(var i = 0; i < terms.length; i++) {
-            if (message.indexOf(terms[i].key) > -1) { 
-              matches.push(terms[i].value);
-            }
+            if (message.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
           }
-          if (matches.length > 0) {
-            sendToGroupMe(`${matches.join(", ")}`, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
-              res.status(200).send(message);
-            });
-          }
+          if (matches.length > 0) res.status(200).send(`Matches: ${matches.join(", ")}`);
           else res.status(200).send('');
         }
       });
