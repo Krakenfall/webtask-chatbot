@@ -17,7 +17,7 @@ var insertTerm = function(key, value, db, cb) {
   db.collection(collection).find().toArray((err, terms) =>  {
     if (err) cb(err);
     else {
-      var existing = terms.find(o => o.key === term.toLowerCase());
+      const existing = terms.find(o => o.key === term.toLowerCase());
       if (existing && existing._id !== null) cb(null, `Term \'${term}\' already exists`); 
       else {
         db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
@@ -91,8 +91,8 @@ server.post('/', (req, res, next) => {
   MongoClient.connect(MONGO_URL, (err, db) => {
     if (err) return next(err);
     // Expects GroupMe payload
-    var message = req.body.text;
-    var parts = message.split(' ');
+    const comment = req.body.text;
+    const parts = comment.split(' ');
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
         case 'add':
@@ -130,7 +130,7 @@ server.post('/', (req, res, next) => {
         else {
           var matches = [];
           for(var i = 0; i < terms.length; i++) {
-            if (message.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
+            if (comment.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
           }
           if (matches.length > 0) {
             sendToGroupMe(`Matches: ${matches.join(", ")}`, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
