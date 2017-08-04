@@ -14,17 +14,17 @@ function Term(key, value) {
   this.value = value;
 }
 
-var insertTerm = function(key, value, db, cb) {
+var insertTerm = function(term, value, db, cb) {
   db.collection(collection).find().toArray((err, terms) =>  {
     if (err) cb(err);
     else {
       const existing = terms.find(o => o.key === term.toLowerCase());
       if (existing && existing._id !== null) cb(null, `Term \'${term}\' already exists`); 
       else {
-        db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
+        db.collection(collection).insertOne(new Term(term.toLowerCase(),value), (err, result) => {
           db.close();
           if (err) cb(err);
-          else cb(null, `Added \'${key}\' with response \'${value}\'`);
+          else cb(null, `Added \'${term}\' with response \'${value}\'`);
         });
       }
     }
@@ -76,7 +76,7 @@ var sendToGroupMe = function(text, groupId, botId, cb) {
     {json: {"bot_id": botId, "text": text}},
     (err, res, body) => {
       if (!err && res.statusCode >= 200 && res.statusCode < 300) {
-        cb(null, `Successfully posted message \'${text}\'`)
+        cb(null, `Successfully posted message \'${text}\'`);
       }
       else cb(err);
     }
@@ -143,8 +143,7 @@ server.post('/', (req, res, next) => {
         }
       });
     }
-  });  
-
+  });
 });
 
 module.exports = Webtask.fromExpress(server);
