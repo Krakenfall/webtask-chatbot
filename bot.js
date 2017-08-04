@@ -96,8 +96,8 @@ server.post('/', (req, res, next) => {
     // Expects GroupMe payload
     const comment = req.body.text;
     const parts = comment.split(' ');
-    console.log(req.body.sender_id);
-    if (req.body.sender_id === GROUPME_BOT_ID) res.status(200).send('');
+    console.log(JSON.stringify(req.body));
+    if (req.body.sender_id === 'GROUPME_BOT_ID') res.status(200).send('');
     else {
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
