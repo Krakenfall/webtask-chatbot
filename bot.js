@@ -26,6 +26,8 @@ var insertTerm = function(key, value, db, cb) {
           else cb(null, `Added \'${key}\' with response \'${value}\'`);
         });
       }
+    }
+  });
 };
 
 var readTerms = function(db, cb) {
@@ -128,7 +130,7 @@ server.post('/', (req, res, next) => {
       readTerms(db, (err, terms) => {
         if (err) res.status(500).send(err);
         else {
-          var matches = [];
+          let matches = [];
           for(var i = 0; i < terms.length; i++) {
             if (comment.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
           }
