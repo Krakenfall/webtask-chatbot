@@ -50,7 +50,7 @@ var deleteTerm = function(term, db, cb) {
         if (doomed) {
           db.collection(collection).remove({_id : doomed._id}, (err, result) => {
             if (err) cb(err);
-            else { cb(null, 'Term successfully deleted'); }
+            else { cb(null, `Term \'${term}\' successfully deleted`); }
           });
         } else { cb(null, `${term} not found`); }
       }
@@ -85,6 +85,12 @@ server.post('/', (req, res, next) => {
             res.status(200).send(result);
           });
           break;
+        case 'delete':
+        case 'remove':
+        case 'rm':
+          deleteTerm(parts[2], db, (err, result) => {
+            res.status(200).send(result);
+          });
         default:
           res.status(200).send('Command not found');
       }
