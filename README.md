@@ -1,5 +1,5 @@
 # webtask-chatbot
-A [webtask](webtask.io)-based chatbot that responds to custom terms. Chatbot uses Webtask, MongoDB, and ExpressJs to run completely serverless. With a GroupMe account, you can join the group at [https://app.groupme.com/join_group/32749479/KMdibJ]() for a demonstration.
+A [webtask](webtask.io)-based chatbot that responds to custom terms. Chatbot uses Webtask, MongoDB, and ExpressJs to run completely serverless. With a GroupMe account, you can join the group at [https://app.groupme.com/join_group/32749479/KMdibJ](https://app.groupme.com/join_group/32749479/KMdibJ) for a demonstration.
 
 Commands:
 ```
@@ -13,7 +13,7 @@ Once terms are added with `/bot add`, when these terms appear in chat from anyon
 
 ## Recreation Steps
 Complete these steps to setup a new instance of webtask-chatbot.
-1. Create a Webtask with wt-cli or [https://webtask.io/make]()
+1. Create a Webtask with wt-cli or [https://webtask.io/make](https://webtask.io/make)
 2. Copy the contents of bot.js into the Webtask
 3. Take note of the task's webhook
 
@@ -29,7 +29,7 @@ Complete these steps to setup a new instance of webtask-chatbot.
 I ran out of time to finish up some of the bot features, so one of the manual steps to get the chatbot running is to find out the GroupMe Bot's user Id and replace the Id in bot.js.
 The fastest way to do this is to complete these steps:
 1. Complete the recreation steps above
-2. Go to [https://webtask.io/make]()
+2. Go to [https://webtask.io/make](https://webtask.io/make)
 3. Open the webtask you created before
 4. Turn on logs (Ctrl + L)
 5. Add a command to the chatbot
