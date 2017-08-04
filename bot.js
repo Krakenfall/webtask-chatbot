@@ -95,7 +95,11 @@ server.post('/', (req, res, next) => {
     if (err) return next(err);
     // Expects GroupMe payload
     const comment = req.body.text;
+    const sender = req.body.sender_id;
     const parts = comment.split(' ');
+    
+    if (sender === GROUPME_BOT_ID) res.status(200).send('');
+    else {
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
         case 'add':
@@ -142,6 +146,7 @@ server.post('/', (req, res, next) => {
           } else {res.status(200).send('');}
         }
       });
+    }
     }
   });
 });
