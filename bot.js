@@ -66,6 +66,7 @@ server.get('/', (req, res, next) => {
 server.post('/', (req, res, next) => {
   const { MONGO_URL } = req.webtaskContext.data;
     res.status(200).send(JSON.stringify(req.webtaskContext));
+    return
   MongoClient.connect(MONGO_URL, (err, db) => {
     if (err) return next(err);
     // Expects GroupMe payload
