@@ -14,14 +14,25 @@ function Term(key, value) {
 }
 
 var insertTerm = function(key, value, db, cb) {
-    db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
-      if (err) cb(err);
-      cb(null, `Added \'${key}\' with response \'${value}\'`);
-    });
+  db.collection(collection).find().toArray((err, terms) =>  {
+    if (err) cb(err);
+    else {
+      const existing = terms.find(o => o.key === term.toLowerCase());
+      if (existing && existing._id !== null) cb(null, `Term \'${term}\' already exists`); 
+      else {
+        db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
+          db.close();
+          if (err) cb(err);
+          else cb(null, `Added \'${key}\' with response \'${value}\'`);
+        });
+      }
+    }
+  });
 };
 
 var readTerms = function(db, cb) {
     db.collection(collection).find().toArray((err, terms) =>  {
+      db.close();
       if (err) cb(err);
       else cb(null, terms);
     });
@@ -32,12 +43,13 @@ var updateTerm = function(term, value, db, cb) {
     if (err) cb(err);
     else {
       var existing = terms.find(o => o.key === term.toLowerCase());
-        if (existing && existing._id !== null) {
+      if (existing && existing._id !== null) {
         db.collection(collection).updateOne({_id: existing._id}, {key: term.toLowerCase(), value: value}, (err, result) => {
+          db.close();
           if (err) cb(err);
           else { cb(null, `Updated \'${term}\' with value \'${value}\'`); }
         });	
-        } else { cb(null, `${term} not found`); }
+      } else { cb(null, `${term} not found`); }
     }
   });
 };
@@ -49,6 +61,7 @@ var deleteTerm = function(term, db, cb) {
         var doomed = terms.find(o => o.key === term.toLowerCase());
         if (doomed) {
           db.collection(collection).remove({_id : doomed._id}, (err, result) => {
+            db.close();
             if (err) cb(err);
             else { cb(null, `Term \'${term}\' successfully deleted`); }
           });
@@ -80,8 +93,8 @@ server.post('/', (req, res, next) => {
   MongoClient.connect(MONGO_URL, (err, db) => {
     if (err) return next(err);
     // Expects GroupMe payload
-    var message = req.body.text;
-    var parts = message.split(' ');
+    const comment = req.body.text;
+    const parts = comment.split(' ');
     if (parts[0].toLowerCase() == '/bot') {
       switch(parts[1]) {
         case 'add':
@@ -90,7 +103,7 @@ server.post('/', (req, res, next) => {
           insertTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
             sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
               res.status(200).send(message);
-            }
+            });
           });
           break;
         case 'update':
@@ -98,7 +111,7 @@ server.post('/', (req, res, next) => {
           updateTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
             sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
               res.status(200).send(message);
-            }
+            });
           });
           break;
         case 'delete':
@@ -107,7 +120,7 @@ server.post('/', (req, res, next) => {
           deleteTerm(parts[2], db, (err, result) => {
             sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
               res.status(200).send(message);
-            }
+            });
           });
           break;
         default:
@@ -117,9 +130,9 @@ server.post('/', (req, res, next) => {
       readTerms(db, (err, terms) => {
         if (err) res.status(500).send(err);
         else {
-          var matches = [];
+          let matches = [];
           for(var i = 0; i < terms.length; i++) {
-            if (message.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
+            if (comment.indexOf(terms[i].key) > -1) matches.push(terms[i].value);
           }
           if (matches.length > 0) {
             sendToGroupMe(`Matches: ${matches.join(", ")}`, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
