@@ -14,10 +14,17 @@ function Term(key, value) {
 }
 
 var insertTerm = function(key, value, db, cb) {
-    db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
-      if (err) cb(err);
-      cb(null, `Added \'${key}\' with response \'${value}\'`);
-    });
+  db.collection(collection).find().toArray((err, terms) =>  {
+    if (err) cb(err);
+    else {
+      var existing = terms.find(o => o.key === term.toLowerCase());
+      if (existing && existing._id !== null) cb(null, `Term \'${term}\' already exists`); 
+      else {
+        db.collection(collection).insertOne(new Term(key.toLowerCase(),value), (err, result) => {
+          if (err) cb(err);
+          else cb(null, `Added \'${key}\' with response \'${value}\'`);
+        });
+      }
 };
 
 var readTerms = function(db, cb) {
@@ -32,12 +39,12 @@ var updateTerm = function(term, value, db, cb) {
     if (err) cb(err);
     else {
       var existing = terms.find(o => o.key === term.toLowerCase());
-        if (existing && existing._id !== null) {
+      if (existing && existing._id !== null) {
         db.collection(collection).updateOne({_id: existing._id}, {key: term.toLowerCase(), value: value}, (err, result) => {
           if (err) cb(err);
           else { cb(null, `Updated \'${term}\' with value \'${value}\'`); }
         });	
-        } else { cb(null, `${term} not found`); }
+      } else { cb(null, `${term} not found`); }
     }
   });
 };
@@ -90,7 +97,7 @@ server.post('/', (req, res, next) => {
           insertTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
             sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
               res.status(200).send(message);
-            }
+            });
           });
           break;
         case 'update':
@@ -98,7 +105,7 @@ server.post('/', (req, res, next) => {
           updateTerm(parts[2], parts.slice(3, parts.length).join(' '), db, (err, result) => {
             sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
               res.status(200).send(message);
-            }
+            });
           });
           break;
         case 'delete':
@@ -107,7 +114,7 @@ server.post('/', (req, res, next) => {
           deleteTerm(parts[2], db, (err, result) => {
             sendToGroupMe(result, GROUPME_GROUP_ID, GROUPME_BOT_ID, (err, message) => {
               res.status(200).send(message);
-            }
+            });
           });
           break;
         default:
